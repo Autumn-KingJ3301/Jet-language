@@ -14,10 +14,12 @@ public class Jet {
     /**
      * Entry point for the Jet language interpreter.
      * <p>
-     * Handles command-line arguments to either execute a script file or start the REPL.
+     * Handles command-line arguments to either execute a script file or start the
+     * REPL.
      * </p>
      *
-     * @param args Command-line arguments. If one argument is provided, it is treated as a script file path. If none, starts REPL.
+     * @param args Command-line arguments. If one argument is provided, it is
+     *             treated as a script file path. If none, starts REPL.
      * @throws IOException if an I/O error occurs during file reading or REPL input.
      */
     public static void main(String[] args) throws IOException {
@@ -27,10 +29,12 @@ public class Jet {
             System.exit(64);
 
         } else if (args.length == 1) {
-            // If one argument is provided, treat it as a file path and execute the script file.
+            // If one argument is provided, treat it as a file path and execute the script
+            // file.
             runFile(args[0]);
         } else {
-            // If no arguments are provided, start the interactive REPL (Read-Eval-Print Loop).
+            // If no arguments are provided, start the interactive REPL (Read-Eval-Print
+            // Loop).
             runPrompt();
         }
     }
@@ -42,7 +46,8 @@ public class Jet {
      * @throws IOException if an I/O error occurs while reading the file.
      */
     private static void runFile(String path) throws IOException {
-        // Read the file at the given path, convert its contents to a String, and pass it to the interpreter.
+        // Read the file at the given path, convert its contents to a String, and pass
+        // it to the interpreter.
         // If an error occurs during execution, exit with status code 65.
 
         if (hasError)
@@ -58,7 +63,8 @@ public class Jet {
      * @param source The Jet source code to interpret.
      */
     private static void run(String source) {
-        // Process the source code string (passes it to the lexer and parser for interpretation).
+        // Process the source code string (passes it to the lexer and parser for
+        // interpretation).
 
     }
 
@@ -84,6 +90,28 @@ public class Jet {
                 break;
             run(line); // Process each line entered by the user.
         }
+    }
+
+    /**
+     * Reports an error at a specific line and location in the source code.
+     *
+     * @param line   The line number where the error occurred.
+     * @param where  Additional context about where the error occurred (e.g., in which construct).
+     * @param message The error message to display.
+     */
+    private static void report(int line, String where, String message) {
+        System.out.println("[Line " + line + "] Error" + where + ": " + message);
+        hasError = true;
+    }
+
+    /**
+     * Reports an error at a specific line in the source code.
+     *
+     * @param line    The line number where the error occurred.
+     * @param message The error message to display.
+     */
+    static void error(int line, String message) {
+        report(line, "", message);
     }
 
 }
