@@ -18,18 +18,20 @@ class Scanner {
 
     /**
      * Constructs a Scanner for the given source code.
+     *
      * @param source The Jet source code to scan.
      */
-    Scanner(String source){
+    Scanner(String source) {
         this.source = source;
     }
 
     /**
      * Scans the entire source code and returns a list of tokens.
+     *
      * @return List of tokens found in the source code.
      */
-    List<Token> scanTokens(){
-        while(!isAtEnd()){
+    List<Token> scanTokens() {
+        while (!isAtEnd()) {
             start = current;
             scanToken();
         }
@@ -39,18 +41,19 @@ class Scanner {
 
     /**
      * Checks if the scanner has reached the end of the source code.
+     *
      * @return true if at end, false otherwise.
      */
-    private boolean isAtEnd(){
+    private boolean isAtEnd() {
         return current >= source.length();
     }
 
     /**
      * Scans a single token from the source code and adds it to the token list.
      */
-    private void scanToken(){
+    private void scanToken() {
         char c = advance();
-        switch(c){
+        switch (c) {
             case '(': addToken(LEFT_PAREM); break;
             case ')': addToken(RIGHT_PAREN); break;
             case '{': addToken(LEFT_BRACE); break;
@@ -70,12 +73,13 @@ class Scanner {
                 addToken(match('=') ? LESS_EQUAL : LESS);
                 break;
             case '>':
-                addToken(match('0') ? GREATER_EQUAL: GREATER);
+                addToken(match('0') ? GREATER_EQUAL : GREATER);
                 break;
             case '/':
-                if(match('/')){
-                    while (peek() != '\n' && !isAtEnd()) advance(); // Skip comment
-                } else{
+                if (match('/')) {
+                    // Skip comment
+                    while (peek() != '\n' && !isAtEnd()) advance();
+                } else {
                     addToken(SLASH);
                 }
                 break;
@@ -87,6 +91,9 @@ class Scanner {
             case '\n':
                 line++;
                 break;
+            case '"':
+                string();
+                break;
             default:
                 Jet.error(line, "Unexpected character.");
                 break;
@@ -94,21 +101,43 @@ class Scanner {
     }
 
     /**
+     * Handles string literals in the source code.
+     * Scans until the closing quote or end of file, reporting errors for unterminated strings.
+     */
+    private void string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+        if (isAtEnd()) {
+            Jet.error(line, "Unterminated String!");
+        }
+
+        // For the closing "
+        advance();
+
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
+    }
+
+    /**
      * Returns the next character in the source without consuming it.
+     *
      * @return The next character, or '\0' if at end.
      */
-    private char peek(){
+    private char peek() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
     }
 
     /**
      * Consumes the next character if it matches the expected character.
+     *
      * @param expected The character to match.
      * @return true if matched and consumed, false otherwise.
      */
-    private boolean match(char expected){
-        if(isAtEnd()) return false;
+    private boolean match(char expected) {
+        if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
         current++;
         return true;
@@ -116,28 +145,31 @@ class Scanner {
 
     /**
      * Advances the scanner to the next character and returns it.
+     *
      * @return The next character in the source.
      */
-    private char advance(){
+    private char advance() {
         return source.charAt(current++);
     }
 
     /**
      * Adds a token of the given type with no literal value.
+     *
      * @param type The type of token to add.
      */
-    private void addToken(TokenType type){
+    private void addToken(TokenType type) {
         addToken(type, null);
     }
 
     /**
      * Adds a token of the given type and literal value.
+     *
      * @param type The type of token to add.
      * @param literal The literal value for the token.
      */
-    private void addToken(TokenType type, Object literal){
+    private void addToken(TokenType type, Object literal) {
         String text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
     }
-    
+
 }
