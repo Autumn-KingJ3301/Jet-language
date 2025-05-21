@@ -6,15 +6,17 @@ import java.util.List;
 import static com.jet.lang.TokenType.*;
 
 /**
- * The Scanner class is responsible for converting Jet source code into a list of tokens.
- * It performs lexical analysis, breaking the input string into meaningful symbols for parsing.
+ * The Scanner class is responsible for converting Jet source code into a list
+ * of tokens.
+ * It performs lexical analysis, breaking the input string into meaningful
+ * symbols for parsing.
  */
 class Scanner {
     private final String source; // The source code to scan
     private final List<Token> tokens = new ArrayList<>(); // List to hold generated tokens
-    private int start = 0;    // Start index of the current lexeme
+    private int start = 0; // Start index of the current lexeme
     private int current = start; // Current index in the source
-    private int line = 1;     // Current line number in the source
+    private int line = 1; // Current line number in the source
 
     /**
      * Constructs a Scanner for the given source code.
@@ -54,15 +56,33 @@ class Scanner {
     private void scanToken() {
         char c = advance();
         switch (c) {
-            case '(': addToken(LEFT_PAREM); break;
-            case ')': addToken(RIGHT_PAREN); break;
-            case '{': addToken(LEFT_BRACE); break;
-            case '}': addToken(RIGHT_BRACE); break;
-            case ',': addToken(COMMA); break;
-            case '.': addToken(DOT); break;
-            case '+': addToken(PLUS); break;
-            case ';': addToken(SEMICOLON); break;
-            case '*': addToken(STAR); break;
+            case '(':
+                addToken(LEFT_PAREM);
+                break;
+            case ')':
+                addToken(RIGHT_PAREN);
+                break;
+            case '{':
+                addToken(LEFT_BRACE);
+                break;
+            case '}':
+                addToken(RIGHT_BRACE);
+                break;
+            case ',':
+                addToken(COMMA);
+                break;
+            case '.':
+                addToken(DOT);
+                break;
+            case '+':
+                addToken(PLUS);
+                break;
+            case ';':
+                addToken(SEMICOLON);
+                break;
+            case '*':
+                addToken(STAR);
+                break;
             case '!':
                 addToken(match('=') ? BANG_EQUAL : BANG);
                 break;
@@ -78,7 +98,8 @@ class Scanner {
             case '/':
                 if (match('/')) {
                     // Skip comment
-                    while (peek() != '\n' && !isAtEnd()) advance();
+                    while (peek() != '\n' && !isAtEnd())
+                        advance();
                 } else {
                     addToken(SLASH);
                 }
@@ -95,18 +116,60 @@ class Scanner {
                 string();
                 break;
             default:
-                Jet.error(line, "Unexpected character.");
-                break;
+                if (isDigit(c)) {
+                    number();
+                } else {
+                    Jet.error(line, "Unexpected character.");
+                    break;
+                }
         }
     }
 
     /**
+     * Scans a number literal from the source code.
+     * Handles both integer and floating-point numbers.
+     */
+    private void number() {
+        while (isDigit(peek())) advance();
+
+        // Look for a fractional part.
+        if (peek() == '.' && isDigit(peekNext())) {
+            advance(); // Consume the '.'
+            while (isDigit(peek())) advance();
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    /**
+     * Returns the character after the current one without consuming it.
+     *
+     * @return The next character, or '\0' if at end.
+     */
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
+    }
+
+    /**
+     * Checks if a character is a digit (0-9).
+     *
+     * @param i The character to check.
+     * @return true if the character is a digit, false otherwise.
+     */
+    private boolean isDigit(char i) {
+        return i >= '0' && i <= '9';
+    }
+
+    /**
      * Handles string literals in the source code.
-     * Scans until the closing quote or end of file, reporting errors for unterminated strings.
+     * Scans until the closing quote or end of file, reporting errors for
+     * unterminated strings.
      */
     private void string() {
         while (peek() != '"' && !isAtEnd()) {
-            if (peek() == '\n') line++;
+            if (peek() == '\n')
+                line++;
             advance();
         }
         if (isAtEnd()) {
@@ -126,7 +189,8 @@ class Scanner {
      * @return The next character, or '\0' if at end.
      */
     private char peek() {
-        if (isAtEnd()) return '\0';
+        if (isAtEnd())
+            return '\0';
         return source.charAt(current);
     }
 
@@ -137,8 +201,10 @@ class Scanner {
      * @return true if matched and consumed, false otherwise.
      */
     private boolean match(char expected) {
-        if (isAtEnd()) return false;
-        if (source.charAt(current) != expected) return false;
+        if (isAtEnd())
+            return false;
+        if (source.charAt(current) != expected)
+            return false;
         current++;
         return true;
     }
@@ -164,7 +230,7 @@ class Scanner {
     /**
      * Adds a token of the given type and literal value.
      *
-     * @param type The type of token to add.
+     * @param type    The type of token to add.
      * @param literal The literal value for the token.
      */
     private void addToken(TokenType type, Object literal) {
