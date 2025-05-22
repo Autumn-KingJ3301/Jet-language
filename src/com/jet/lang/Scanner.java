@@ -1,15 +1,19 @@
 package com.jet.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.jet.lang.TokenType.*;
 
 /**
  * The Scanner class is responsible for converting Jet source code into a list
  * of tokens.
+ * <p>
  * It performs lexical analysis, breaking the input string into meaningful
  * symbols for parsing.
+ * </p>
  */
 class Scanner {
     private final String source; // The source code to scan
@@ -17,6 +21,26 @@ class Scanner {
     private int start = 0; // Start index of the current lexeme
     private int current = start; // Current index in the source
     private int line = 1; // Current line number in the source
+    private static final Map<String, TokenType> keywords; // Map of reserverd words for the language.
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
 
     /**
      * Constructs a Scanner for the given source code.
@@ -107,15 +131,18 @@ class Scanner {
             case ' ':
             case '\r':
             case '\t':
-                // Ignore whitespace
+                // Ignore whitespace characters (space, carriage return, tab)
                 break;
             case '\n':
+                // Newline encountered, increment line counter
                 line++;
                 break;
             case '"':
+                // Start of a string literal
                 string();
                 break;
             default:
+                // Handle numbers, identifiers, or report unexpected characters
                 if (isDigit(c)) {
                     number();
                 } else if (isAlpha(c)) {
@@ -127,19 +154,41 @@ class Scanner {
         }
     }
 
+    /**
+     * Scans an identifier or keyword from the source code.
+     * If the scanned text matches a reserved keyword, its token type is used.
+     * Otherwise, it is treated as a generic identifier.
+     */
     private void identifier() {
         while (isAlphaNumeric(peek()))
             advance();
-        addToken(IDENTIFIER);
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text); // Check with the hashmap to find a match, if exists we add that or it is
+                                             // recognized as a keyword
+        if (type == null)
+            type = IDENTIFIER;
+        addToken(type);
     }
 
+    /**
+     * Checks if a character is an alphabetic letter (a-z, A-Z) or underscore.
+     *
+     * @param c The character to check.
+     * @return true if the character is a letter or underscore, false otherwise.
+     */
     private boolean isAlpha(char c) {
-        return  (c >= 'a' && c <= 'z') ||
+        return (c >= 'a' && c <= 'z') ||
                 (c >= 'A' && c <= 'Z') ||
                 (c == '_');
     }
 
-    private boolean isAlphaNumeric(char c){
+    /**
+     * Checks if a character is alphanumeric (letter, digit, or underscore).
+     *
+     * @param c The character to check.
+     * @return true if the character is alphanumeric, false otherwise.
+     */
+    private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
     }
 
