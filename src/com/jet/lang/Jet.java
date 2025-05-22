@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Jet {
 
@@ -41,6 +42,9 @@ public class Jet {
 
     /**
      * Reads the contents of a file and executes it as Jet source code.
+     * <p>
+     * If an error occurs during execution, exits with status code 65.
+     * </p>
      *
      * @param path The path to the script file to execute.
      * @throws IOException if an I/O error occurs while reading the file.
@@ -49,23 +53,28 @@ public class Jet {
         // Read the file at the given path, convert its contents to a String, and pass
         // it to the interpreter.
         // If an error occurs during execution, exit with status code 65.
-
         if (hasError)
             System.exit(65);
-
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
     }
 
     /**
      * Processes and interprets Jet source code provided as a string.
+     * <p>
+     * Passes the source code to the scanner and prints each token found.
+     * </p>
      *
      * @param source The Jet source code to interpret.
      */
     private static void run(String source) {
         // Process the source code string (passes it to the lexer and parser for
         // interpretation).
-        
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+        for (Token token : tokens) {
+            System.out.println(token);
+        }
     }
 
     /**
