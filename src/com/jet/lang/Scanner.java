@@ -118,6 +118,8 @@ class Scanner {
             default:
                 if (isDigit(c)) {
                     number();
+                } else if (isAlpha(c)) {
+                    identifier();
                 } else {
                     Jet.error(line, "Unexpected character.");
                     break;
@@ -125,17 +127,35 @@ class Scanner {
         }
     }
 
+    private void identifier() {
+        while (isAlphaNumeric(peek()))
+            advance();
+        addToken(IDENTIFIER);
+    }
+
+    private boolean isAlpha(char c) {
+        return  (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                (c == '_');
+    }
+
+    private boolean isAlphaNumeric(char c){
+        return isAlpha(c) || isDigit(c);
+    }
+
     /**
      * Scans a number literal from the source code.
      * Handles both integer and floating-point numbers.
      */
     private void number() {
-        while (isDigit(peek())) advance();
+        while (isDigit(peek()))
+            advance();
 
         // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
             advance(); // Consume the '.'
-            while (isDigit(peek())) advance();
+            while (isDigit(peek()))
+                advance();
         }
 
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
@@ -145,9 +165,11 @@ class Scanner {
      * Returns the character after the current one without consuming it.
      *
      * @return The next character, or '\0' if at end.
+     *         Our Scanner looks ahead mostly two characters.
      */
     private char peekNext() {
-        if (current + 1 >= source.length()) return '\0';
+        if (current + 1 >= source.length())
+            return '\0';
         return source.charAt(current + 1);
     }
 
