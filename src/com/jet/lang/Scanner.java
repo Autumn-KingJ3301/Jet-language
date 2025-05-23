@@ -124,6 +124,8 @@ class Scanner {
                     // Skip comment
                     while (peek() != '\n' && !isAtEnd())
                         advance();
+                } else if (match('*')) {
+                    multilineComment();
                 } else {
                     addToken(SLASH);
                 }
@@ -152,6 +154,21 @@ class Scanner {
                     break;
                 }
         }
+    }
+
+    private void multilineComment() {
+        while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+            if (peek() == '\n')
+                line++;
+            advance();
+        }
+        if (!isAtEnd()) {
+            advance();
+            advance();
+        }else{
+            Jet.error(line, "Unterminated multi line comment");
+        }
+
     }
 
     /**
