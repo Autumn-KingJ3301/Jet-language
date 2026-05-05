@@ -156,6 +156,12 @@ class Scanner {
         }
     }
 
+    /**
+     * Handles multi-line comments in the source code.
+     * Advances through the source until the closing '*'+'/' is found or the end of file is reached.
+     * Increments the line counter for each newline encountered within the comment.
+     * Reports an error if the comment is unterminated.
+     */
     private void multilineComment() {
         while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
             if (peek() == '\n')
@@ -163,12 +169,11 @@ class Scanner {
             advance();
         }
         if (!isAtEnd()) {
-            advance();
-            advance();
-        }else{
+            advance(); // consume '*'
+            advance(); // consume '/'
+        } else {
             Jet.error(line, "Unterminated multi line comment");
         }
-
     }
 
     /**

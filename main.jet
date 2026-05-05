@@ -1,9 +1,10 @@
-//this is a comment
-"this is a string"
-
-/* multiline comment
-*  multiple lines
-*
+"string"
+//comment
+/* 
+multilineComment
 */
 
-print
+class
+
+home
+
